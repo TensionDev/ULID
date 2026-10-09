@@ -90,12 +90,19 @@ namespace TensionDev.ULID
                 time_low[1] = time[1];
             }
 
+#if NET6_0_OR_GREATER
+            using var randomNumberGenerator = System.Security.Cryptography.RandomNumberGenerator.Create();
+            randomNumberGenerator.GetBytes(random_high);
+            randomNumberGenerator.GetBytes(random_mid);
+            randomNumberGenerator.GetBytes(random_low);
+#else
             using (System.Security.Cryptography.RNGCryptoServiceProvider cryptoServiceProvider = new System.Security.Cryptography.RNGCryptoServiceProvider())
             {
                 cryptoServiceProvider.GetBytes(random_high);
                 cryptoServiceProvider.GetBytes(random_mid);
                 cryptoServiceProvider.GetBytes(random_low);
             }
+#endif
 
             _time_high = BitConverter.ToUInt32(time_high, 0);
             _time_low = BitConverter.ToUInt16(time_low, 0);
@@ -302,7 +309,7 @@ namespace TensionDev.ULID
             return vs;
         }
 
-#if NETSTANDARD2_1_OR_GREATER
+#if NET6_0_OR_GREATER
         /// <summary>
         /// Converts the specified character span into the equivalent Ulid object.
         /// </summary>
@@ -549,7 +556,7 @@ namespace TensionDev.ULID
             return s_epoch.ToUniversalTime() + timeSpan;
         }
 
-#if NETSTANDARD2_1_OR_GREATER
+#if NET6_0_OR_GREATER
         /// <summary>
         /// Returns a character span representation of the value of this instance as per ulid/spec.
         /// </summary>
