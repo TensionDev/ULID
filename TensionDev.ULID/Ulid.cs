@@ -61,6 +61,9 @@ namespace TensionDev.ULID
         public Ulid(DateTime timestamp)
         {
             TimeSpan timeSince = timestamp.ToUniversalTime() - s_epoch.ToUniversalTime();
+            if (timeSince.Ticks < 0)
+                throw new ArgumentOutOfRangeException(nameof(timestamp), "Timestamp cannot be earlier than the Unix epoch.");
+
             Int64 timeInterval = ((Int64)timeSince.TotalMilliseconds);
 
             Byte[] time = BitConverter.GetBytes(timeInterval);
@@ -173,6 +176,9 @@ namespace TensionDev.ULID
             string vs = s.ToUpper().Replace("O", "0").Replace("I", "1").Replace("L", "1");
 
             if (vs.Contains("U"))
+                throw new FormatException(INVALID_FORMAT_STRING);
+
+            if (FromCrockfordBase32(vs[0]) > 7)
                 throw new FormatException(INVALID_FORMAT_STRING);
 
             const Int32 baseLength = 5;

@@ -8,8 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v1.1.0] - 2026-11-08
+[v1.1.0](https://github.com/TensionDev/ULID/releases/tag/v1.1.0)
+
+### Added
+- Added ULID specification conformance tests for canonical encoding, case-insensitive parsing, overflow rejection, and Unix epoch timestamp handling.
+
 ### Changed
 - Changed folder structure to match the TensionDev.ULID namespace.
+- Changed target frameworks and added framework-specific optimizations.
+
+### Fixed
+- Fixed parsing to reject ULID strings whose first Base32 character exceeds `7`, preventing 130-bit overflow.
+- Fixed timestamp construction to reject dates earlier than the Unix epoch instead of encoding a wrapped timestamp.
 
 
 ## [v1.0.0] - 2026-02-11

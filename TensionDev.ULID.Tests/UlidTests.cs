@@ -12,6 +12,9 @@ namespace TensionDev.ULID.Tests
 
             Ulid ulid = Ulid.Max;
             Assert.Equal(expectedULID, ulid.ToString());
+
+            Ulid parsed = Ulid.Parse(expectedULID);
+            Assert.Equal(expectedULID, parsed.ToString());
         }
 
         [Fact]
@@ -24,6 +27,24 @@ namespace TensionDev.ULID.Tests
 
             // First 10 characters are the timestamp, next 16 are random.
             Assert.Equal(expectedULID.Substring(0, 10), ulid.ToString().Substring(0, 10));
+        }
+
+        [Fact]
+        public void TestConstructorDateTimeBeforeUnixEpoch()
+        {
+            DateTime dateTime = DateTime.UnixEpoch.AddMilliseconds(-1);
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => new Ulid(dateTime));
+        }
+
+        [Fact]
+        public void TestConstructorDateTimeAtUnixEpoch()
+        {
+            Ulid ulid = new Ulid(DateTime.UnixEpoch);
+            byte[] bytes = ulid.ToByteArray();
+
+            for (int i = 0; i < 6; ++i)
+                Assert.Equal((byte)0, bytes[i]);
         }
 
         [Fact]
@@ -76,6 +97,24 @@ namespace TensionDev.ULID.Tests
         {
             string vs = "01ARZ3NDEKTSU4RRFFQ69G5FAV";
             Assert.Throws<FormatException>(() => { Ulid ulid = new Ulid(vs); });
+        }
+
+        [Fact]
+        public void TestConstructorLowercaseString()
+        {
+            string expectedULID = "01ARZ3NDEKTSV4RRFFQ69G5FAV";
+            Ulid ulid = new Ulid(expectedULID.ToLowerInvariant());
+
+            Assert.Equal(expectedULID, ulid.ToString());
+        }
+
+        [Theory]
+        [InlineData("80000000000000000000000000")]
+        [InlineData("ZZZZZZZZZZZZZZZZZZZZZZZZZZ")]
+        public void TestConstructorRejectsOverflowString(string value)
+        {
+            Assert.Throws<FormatException>(() => new Ulid(value));
+            Assert.False(Ulid.TryParse(value, out _));
         }
 
         [Fact]
